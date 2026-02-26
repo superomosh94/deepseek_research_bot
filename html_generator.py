@@ -130,16 +130,23 @@ class HTMLGenerator:
 
         .hero h1 {{
             font-family: var(--font-display);
-            font-size: clamp(3rem, 8vw, 6rem);
+            font-size: clamp(2.5rem, 6vw, 4.5rem); /* Reduced slightly from 3-8-6 */
             font-weight: 800;
-            line-height: 1;
-            letter-spacing: -3px;
-            max-width: 1000px;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            max-width: 1100px;
             margin-bottom: 40px;
             background: linear-gradient(to bottom, #fff 40%, rgba(255, 255, 255, 0.4));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: slideUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+            
+            /* Limit long titles */
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
 
         .hero-meta {{
@@ -246,36 +253,63 @@ class HTMLGenerator:
 
         /* --- SYNTHESIS REPORT --- */
         .report-body {{
-            font-size: 1.25rem;
-            color: #e2e8f0;
+            font-size: 1.15rem; /* Slightly smaller for density */
+            color: #cbd5e1;
+            line-height: 1.8;
         }}
 
         .report-body h2 {{
             font-family: var(--font-display);
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
             letter-spacing: -1px;
-            margin: 60px 0 32px;
+            margin: 50px 0 24px;
             color: #fff;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
         }}
 
         .report-body h3 {{
             font-family: var(--font-display);
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            margin: 40px 0 24px;
+            margin: 35px 0 20px;
             color: var(--accent);
         }}
 
-        .report-body p {{ margin-bottom: 24px; }}
-        .report-body ul, .report-body ol {{ margin: 0 0 32px 24px; }}
-        .report-body li {{ margin-bottom: 12px; }}
+        .report-body p {{ margin-bottom: 20px; }}
+        .report-body ul, .report-body ol {{ margin: 0 0 24px 24px; }}
+        .report-body li {{ margin-bottom: 8px; }}
+
+        /* Table Styling for Data */
+        .report-body table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }}
+
+        .report-body th, .report-body td {{
+            padding: 16px;
+            text-align: left;
+            border: 1px solid var(--border);
+        }}
+
+        .report-body th {{
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-family: var(--font-display);
+            font-weight: 600;
+        }}
 
         .report-body blockquote {{
             border-left: 4px solid var(--ultramarine);
             background: rgba(37, 99, 235, 0.05);
-            padding: 32px;
-            margin: 48px 0;
+            padding: 24px 32px;
+            margin: 40px 0;
             font-style: italic;
             border-radius: 0 16px 16px 0;
             color: #fff;
