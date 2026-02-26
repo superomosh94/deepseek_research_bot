@@ -56,7 +56,7 @@ class DeepSeekResearchBot:
             # Create refinement prompt
             refinement_prompt = self.prompt_engine.create_refinement_prompt(
                 initial_query,
-                self.research_data['responses'][-1] if self.research_data['responses'] else None,
+                self.research_data['responses'],
                 iteration
             )
             
@@ -204,7 +204,7 @@ Here are ALL the responses I gathered:
 """
         
         for i, response in enumerate(self.research_data['responses'], 1):
-            synthesis_prompt += f"\n--- ITERATION {i} ---\n{response[:1500]}...\n"
+            synthesis_prompt += f"\n--- ITERATION {i} ---\n{response[:8000]}\n"
         
         synthesis_prompt += """
 Please synthesize ALL this information into a comprehensive, well-structured final report.

@@ -362,7 +362,16 @@ class BrowserController:
         
         while time.time() - start_time < timeout:
             try:
-                # Get current response
+                # Detect current state from UI
+                # Stop button usually means it's still generating
+                stop_btns = self.driver.find_elements(By.CSS_SELECTOR, self.config.SELECTORS["stop_button"])
+                is_thinking = any(btn.is_displayed() for btn in stop_btns)
+                
+                # Regenerate button usually means it's finished
+                regen_btns = self.driver.find_elements(By.CSS_SELECTOR, self.config.SELECTORS["regenerate_button"])
+                is_done = any(btn.is_displayed() for btn in regen_btns)
+                
+                # Get current response text
                 current_response = self.get_last_response()
                 
                 # If we have a baseline and the current response is the same as the baseline,
@@ -416,6 +425,7 @@ class BrowserController:
                 time.sleep(poll_interval)
                 
             except Exception as e:
+                # Silently catch minor browser hiccups, but log major ones
                 if "Read timed out" in str(e):
                     console.print("[red]❌ Browser engine hung. Retrying...[/red]")
                     raise e

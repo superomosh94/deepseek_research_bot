@@ -17,45 +17,57 @@ def parse_txt_to_data(filepath):
     
     # Extract iterations
     iterations = []
-    parts = content.split("ITERATION ")
-    for part in parts[1:]:
-        findings_start = part.find("FINDINGS:\n")
-        prompt_start = part.find("RESEARCH PROMPT:\n")
+    # Split by big iteration markers
+    parts = re.split(r"={40}\nITERATION \d+\n={40}", content)
+    
+    # The first part is the header, subsequent parts are iterations
+    for i, part in enumerate(parts[1:]):
+        findings_match = re.search(r"FINDINGS:\n(.*?)(?:\n-{40}|$)", part, re.DOTALL)
+        prompt_match = re.search(r"RESEARCH PROMPT:\n(.*?)(?:\n\nFINDINGS:|$)", part, re.DOTALL)
         
-        prompt = ""
-        if prompt_start != -1:
-            end = findings_start if findings_start != -1 else len(part)
-            prompt = part[prompt_start + 16:end].strip()
+        prompt = prompt_match.group(1).strip() if prompt_match else "No prompt recorded."
+        findings = findings_match.group(1).strip() if findings_match else "No findings recorded."
+        
+        # Try to find quality score in the part (if it was logged)
+        # Note: older logs might not have it, so we estimate
+        quality = 0.85 # Default
+        quality_match = re.search(r"Quality Score: (\d+(?:\.\d+)?)%", part)
+        if quality_match:
+            quality = float(quality_match.group(1)) / 100.0
+        else:
+            # Estimate quality based on content length and structure
+            word_count = len(findings.split())
+            has_lists = '-' in findings or '*' in findings or '1.' in findings
+            has_code = '```' in findings or '    ' in findings
             
-        findings = ""
-        if findings_start != -1:
-            end = part.find("-" * 40)
-            if end == -1: end = part.find("=" * 40)
-            if end == -1: end = len(part)
-            findings = part[findings_start + 10:end].strip()
-            
+            score = 0.5
+            if word_count > 500: score += 0.2
+            if has_lists: score += 0.1
+            if has_code: score += 0.1
+            quality = min(score, 0.95)
+
         iterations.append({
             'prompt': prompt,
-            'response': findings
+            'response': findings,
+            'quality': quality
         })
     
     # Extract final synthesis
     synthesis = ""
-    syn_start = content.find("FINAL SYNTHESIS REPORT\n")
-    if syn_start != -1:
-        # Skip the header lines
-        syn_content = content[syn_start + 23:].strip()
-        syn_lines = syn_content.split('\n')
-        # Filter out the '====' separator line if it exists at the start
-        if syn_lines and syn_lines[0].startswith('='):
-            synthesis = '\n'.join(syn_lines[1:]).strip()
-        else:
-            synthesis = syn_content
+    syn_match = re.search(r"FINAL SYNTHESIS REPORT\n={40}\n\n(.*?)$", content, re.DOTALL)
+    if syn_match:
+        synthesis = syn_match.group(1).strip()
+    else:
+        # Fallback if the above fails
+        syn_start = content.find("FINAL SYNTHESIS REPORT")
+        if syn_start != -1:
+            synthesis = content[syn_start:].split('='*40)[-1].strip()
         
     return {
         'initial_query': topic,
         'responses': [i['response'] for i in iterations],
         'research_prompts': [i['prompt'] for i in iterations],
+        'quality_history': [{'iteration': i+1, 'quality': iter_data['quality']} for i, iter_data in enumerate(iterations)],
         'final_report': synthesis
     }
 

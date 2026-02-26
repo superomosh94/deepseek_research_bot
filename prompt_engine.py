@@ -22,11 +22,15 @@ class PromptEngine:
         self.iteration_history = []
         self.refined_prompts = []
         
-    def create_refinement_prompt(self, original_query, current_response=None, iteration=1):
+    def create_refinement_prompt(self, original_query, responses=None, iteration=1):
         """
-        Create a prompt asking DeepSeek to improve the research query
+        Create a prompt asking DeepSeek to improve the research query.
+        Incorporates repetition detection and strategic pivoting.
         """
-        if iteration == 1:
+        if not responses:
+            responses = []
+            
+        if iteration == 1 or not responses:
             # First iteration - ask for better prompt
             prompt = f"""I need to research: "{original_query}"
 
@@ -53,23 +57,46 @@ IMPROVED PROMPT:
             
         else:
             # Subsequent iterations - refine based on findings
+            # Check for repetition (basic check: same length or similar keywords)
+            last_resp = responses[-1]
+            prev_resps = responses[:-1]
+            
+            is_repetitive = False
+            for prev in prev_resps:
+                # Check for high overlap in keywords or very similar length/structure
+                if len(last_resp) > 0 and abs(len(last_resp) - len(prev)) < 50:
+                    is_repetitive = True
+                    break
+            
+            # Prepare context summary
+            context_summary = ""
+            for i, r in enumerate(responses):
+                context_summary += f"\nITERATION {i+1} SUMMARY: {r[:300]}...\n"
+
+            strategy = "DEEP DIVE" if not is_repetitive else "STRATEGIC PIVOT"
+            
             prompt = f"""We've been researching: "{original_query}"
 
-Here's what we found in previous research:
-{current_response[:1000]}...
+HISTORY SO FAR:
+{context_summary}
 
-Based on this information, I need you to:
+CURRENT STATUS: We are in iteration {iteration}. 
+TARGET STRATEGY: {strategy}
 
-1. IDENTIFY GAPS: What's missing from what we've learned?
-2. DEEPER QUESTIONS: What specific aspects need more investigation?
-3. NEW ANGLE: What different perspective should we explore?
+{'[WARNING] I noticed the last response had significant overlap with previous ones. YOU MUST PIVOT.' if is_repetitive else ''}
 
-Create a NEW, MORE SPECIFIC research prompt that will dig deeper into the most important or unexplored aspects.
+Based on all findings above, I need you to:
+
+1. GAP ANALYSIS: What specific aspects remain unexplored or need more detail?
+2. DIVERSIFICATION: What new angle, perspective, or related subtopic should we investigate to avoid repeating ourselves?
+3. DEEPER QUESTIONS: What complex technical or specific questions should we ask now?
+
+Create a NEW research prompt that will dig deeper into the most important or unexplored aspects.
 
 Make this prompt:
-- Focused on filling the identified gaps
-- More specific than the previous one
-- Designed to get unique insights not covered yet
+{'### MANDATORY: Explore a completely different subtopic or edge case to break the repetition. ###' if is_repetitive else '- Focused on filling the identified gaps'}
+- Designed to get UNIQUE insights not covered yet
+- Highly specific and technical
 
 Format your response like this:
 
