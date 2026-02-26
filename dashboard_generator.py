@@ -230,6 +230,48 @@ class DashboardGenerator:
             border-top: 1px solid var(--border);
         }}
 
+        .copy-topic-btn {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+
+        .copy-topic-btn:hover {{
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: var(--primary);
+        }}
+
+        .copy-topic-btn i {{ font-size: 0.9rem; }}
+
+        /* Toast Notification */
+        #toast {{
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3);
+            z-index: 10000;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }}
+
+        #toast.active {{ transform: translateX(-50%) translateY(0); }}
+
         .date-box {{
             color: var(--text-dim);
             font-size: 0.9rem;
@@ -255,6 +297,8 @@ class DashboardGenerator:
     </style>
 </head>
 <body>
+    <div id="toast">Copied to Clipboard!</div>
+
     <div class="blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -276,22 +320,29 @@ class DashboardGenerator:
 
         <div class="grid" id="grid">
             {"".join([f'''
-            <a href="{(output_path / r['file']).relative_to(Path('.')).as_posix()}" class="card" data-topic="{r['topic'].lower()}">
+            <div class="card" data-topic="{r['topic'].lower()}">
                 <div class="card-top">
                     <span class="cycles">{r['iterations']} Research Cycles</span>
                     {f'<span class="new-tag">New</span>' if r['is_new'] else ''}
                 </div>
-                <h3>{r['topic']}</h3>
+                <a href="{(output_path / r['file']).relative_to(Path('.')).as_posix()}" style="text-decoration: none; color: inherit;">
+                    <h3>{r['topic']}</h3>
+                </a>
+                <div style="margin-bottom: 25px;">
+                    <button class="copy-topic-btn" onclick="copyTopic(\'{r['topic'].replace("'", "\\'")}\')">
+                        <i class="far fa-copy"></i> Copy Topic
+                    </button>
+                </div>
                 <div class="card-footer">
                     <div class="date-box">
                         <i class="far fa-calendar-alt"></i>
                         {r['date'][:10]}
                     </div>
-                    <div class="arrow">
+                    <a href="{(output_path / r['file']).relative_to(Path('.')).as_posix()}" class="arrow">
                         <i class="fas fa-chevron-right"></i>
-                    </div>
+                    </a>
                 </div>
-            </a>
+            </div>
             ''' for r in reports])}
         </div>
     </div>
@@ -306,6 +357,16 @@ class DashboardGenerator:
                 }} else {{
                     c.style.display = 'none';
                 }}
+            }});
+        }}
+
+        function copyTopic(text) {{
+            navigator.clipboard.writeText(text).then(() => {{
+                const toast = document.getElementById('toast');
+                toast.classList.add('active');
+                setTimeout(() => {{
+                    toast.classList.remove('active');
+                }}, 2000);
             }});
         }}
     </script>

@@ -190,6 +190,48 @@
             border-top: 1px solid var(--border);
         }
 
+        .copy-topic-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-topic-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .copy-topic-btn i { font-size: 0.9rem; }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3);
+            z-index: 10000;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        #toast.active { transform: translateX(-50%) translateY(0); }
+
         .date-box {
             color: var(--text-dim);
             font-size: 0.9rem;
@@ -215,6 +257,8 @@
     </style>
 </head>
 <body>
+    <div id="toast">Copied to Clipboard!</div>
+
     <div class="blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -236,90 +280,125 @@
 
         <div class="grid" id="grid">
             
-            <a href="research_output/report_20260226_192121.html" class="card" data-topic="create me a modern cv for a fullstack web developer stack html css js node express mysql name martin omondo the other things use template i will edit them">
+            <div class="card" data-topic="create me a modern cv for a fullstack web developer stack html css js node express mysql name martin omondo the other things use template i will edit them">
                 <div class="card-top">
                     <span class="cycles">1 Research Cycles</span>
                     <span class="new-tag">New</span>
                 </div>
-                <h3>create me a modern cv for a fullstack web developer stack html css js node express mysql name martin omondo the other things use template i will edit them</h3>
+                <a href="research_output/report_20260226_192121.html" style="text-decoration: none; color: inherit;">
+                    <h3>create me a modern cv for a fullstack web developer stack html css js node express mysql name martin omondo the other things use template i will edit them</h3>
+                </a>
+                <div style="margin-bottom: 25px;">
+                    <button class="copy-topic-btn" onclick="copyTopic('create me a modern cv for a fullstack web developer stack html css js node express mysql name martin omondo the other things use template i will edit them')">
+                        <i class="far fa-copy"></i> Copy Topic
+                    </button>
+                </div>
                 <div class="card-footer">
                     <div class="date-box">
                         <i class="far fa-calendar-alt"></i>
                         2026-02-26
                     </div>
-                    <div class="arrow">
+                    <a href="research_output/report_20260226_192121.html" class="arrow">
                         <i class="fas fa-chevron-right"></i>
-                    </div>
+                    </a>
                 </div>
-            </a>
+            </div>
             
-            <a href="research_output/report_20260226_131731.html" class="card" data-topic="android app development">
+            <div class="card" data-topic="android app development">
                 <div class="card-top">
                     <span class="cycles">2 Research Cycles</span>
                     <span class="new-tag">New</span>
                 </div>
-                <h3>android app development</h3>
+                <a href="research_output/report_20260226_131731.html" style="text-decoration: none; color: inherit;">
+                    <h3>android app development</h3>
+                </a>
+                <div style="margin-bottom: 25px;">
+                    <button class="copy-topic-btn" onclick="copyTopic('android app development')">
+                        <i class="far fa-copy"></i> Copy Topic
+                    </button>
+                </div>
                 <div class="card-footer">
                     <div class="date-box">
                         <i class="far fa-calendar-alt"></i>
                         2026-02-26
                     </div>
-                    <div class="arrow">
+                    <a href="research_output/report_20260226_131731.html" class="arrow">
                         <i class="fas fa-chevron-right"></i>
-                    </div>
+                    </a>
                 </div>
-            </a>
+            </div>
             
-            <a href="research_output/report_20260226_105954.html" class="card" data-topic="│ i need info on how to make money with bug bounty huunting">
+            <div class="card" data-topic="│ i need info on how to make money with bug bounty huunting">
                 <div class="card-top">
                     <span class="cycles">1 Research Cycles</span>
                     <span class="new-tag">New</span>
                 </div>
-                <h3>│ i need info on how to make money with bug bounty huunting</h3>
+                <a href="research_output/report_20260226_105954.html" style="text-decoration: none; color: inherit;">
+                    <h3>│ i need info on how to make money with bug bounty huunting</h3>
+                </a>
+                <div style="margin-bottom: 25px;">
+                    <button class="copy-topic-btn" onclick="copyTopic('│ i need info on how to make money with bug bounty huunting')">
+                        <i class="far fa-copy"></i> Copy Topic
+                    </button>
+                </div>
                 <div class="card-footer">
                     <div class="date-box">
                         <i class="far fa-calendar-alt"></i>
                         2026-02-26
                     </div>
-                    <div class="arrow">
+                    <a href="research_output/report_20260226_105954.html" class="arrow">
                         <i class="fas fa-chevron-right"></i>
-                    </div>
+                    </a>
                 </div>
-            </a>
+            </div>
             
-            <a href="research_output/report_20260226_091646.html" class="card" data-topic="i want to build a project a learning management system for a school called upendo scholl located in kenya i want it to have all the features of the users">
+            <div class="card" data-topic="i want to build a project a learning management system for a school called upendo scholl located in kenya i want it to have all the features of the users">
                 <div class="card-top">
                     <span class="cycles">5 Research Cycles</span>
                     <span class="new-tag">New</span>
                 </div>
-                <h3>i want to build a project a learning management system for a school called upendo scholl located in kenya i want it to have all the features of the users</h3>
+                <a href="research_output/report_20260226_091646.html" style="text-decoration: none; color: inherit;">
+                    <h3>i want to build a project a learning management system for a school called upendo scholl located in kenya i want it to have all the features of the users</h3>
+                </a>
+                <div style="margin-bottom: 25px;">
+                    <button class="copy-topic-btn" onclick="copyTopic('i want to build a project a learning management system for a school called upendo scholl located in kenya i want it to have all the features of the users')">
+                        <i class="far fa-copy"></i> Copy Topic
+                    </button>
+                </div>
                 <div class="card-footer">
                     <div class="date-box">
                         <i class="far fa-calendar-alt"></i>
                         2026-02-26
                     </div>
-                    <div class="arrow">
+                    <a href="research_output/report_20260226_091646.html" class="arrow">
                         <i class="fas fa-chevron-right"></i>
-                    </div>
+                    </a>
                 </div>
-            </a>
+            </div>
             
-            <a href="research_output/report_20260226_085552.html" class="card" data-topic="i want to create a portfolio website a cv and cover letter for a tech position my stack is html css js ejs node express i want to have a template for it my name is martin omondo">
+            <div class="card" data-topic="i want to create a portfolio website a cv and cover letter for a tech position my stack is html css js ejs node express i want to have a template for it my name is martin omondo">
                 <div class="card-top">
                     <span class="cycles">5 Research Cycles</span>
                     <span class="new-tag">New</span>
                 </div>
-                <h3>i want to create a portfolio website a cv and cover letter for a tech position my stack is html css js ejs node express i want to have a template for it my name is martin omondo</h3>
+                <a href="research_output/report_20260226_085552.html" style="text-decoration: none; color: inherit;">
+                    <h3>i want to create a portfolio website a cv and cover letter for a tech position my stack is html css js ejs node express i want to have a template for it my name is martin omondo</h3>
+                </a>
+                <div style="margin-bottom: 25px;">
+                    <button class="copy-topic-btn" onclick="copyTopic('i want to create a portfolio website a cv and cover letter for a tech position my stack is html css js ejs node express i want to have a template for it my name is martin omondo')">
+                        <i class="far fa-copy"></i> Copy Topic
+                    </button>
+                </div>
                 <div class="card-footer">
                     <div class="date-box">
                         <i class="far fa-calendar-alt"></i>
                         2026-02-26
                     </div>
-                    <div class="arrow">
+                    <a href="research_output/report_20260226_085552.html" class="arrow">
                         <i class="fas fa-chevron-right"></i>
-                    </div>
+                    </a>
                 </div>
-            </a>
+            </div>
             
         </div>
     </div>
@@ -334,6 +413,16 @@
                 } else {
                     c.style.display = 'none';
                 }
+            });
+        }
+
+        function copyTopic(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('active');
+                setTimeout(() => {
+                    toast.classList.remove('active');
+                }, 2000);
             });
         }
     </script>

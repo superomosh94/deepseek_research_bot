@@ -204,6 +204,26 @@ class HTMLGenerator:
 
         .nav-link:hover {{ color: #fff; }}
 
+        .nav-link.active-section {{
+            color: #fff;
+        }}
+
+        .nav-indicator {{
+            position: absolute;
+            background: var(--primary);
+            height: 36px;
+            border-radius: 100px;
+            z-index: -1;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            left: 0;
+            width: 0;
+            opacity: 0;
+        }}
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+        }}
+
         .hub-btn {{
             background: var(--ultramarine);
             color: #fff;
@@ -313,6 +333,109 @@ class HTMLGenerator:
             font-style: italic;
             border-radius: 0 16px 16px 0;
             color: #fff;
+        }}
+
+        /* --- COPY BUTTONS --- */
+        pre {{ position: relative; }}
+        
+        .copy-btn {{
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-family: var(--font-display);
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+            opacity: 0;
+            z-index: 10;
+        }}
+
+        pre:hover .copy-btn {{ opacity: 1; }}
+        .copy-btn:hover {{ background: var(--ultramarine); color: #fff; border-color: var(--accent); }}
+        .copy-btn.copied {{ background: #10b981; color: #fff; border-color: #10b981; }}
+
+        /* Toast Notification */
+        #toast {{
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--accent);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+            z-index: 10000;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            font-family: var(--font-display);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }}
+
+        #toast.active {{ transform: translateX(-50%) translateY(0); }}
+
+        .action-container {{
+            max-width: 900px;
+            margin: -80px auto 120px; /* Pull up to sit below synthesis */
+            display: flex;
+            gap: 16px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: fit-content;
+            position: relative;
+            z-index: 100;
+        }}
+
+        /* Floating state for the summary button */
+        .action-container.floating {{
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            border-radius: 100px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            margin: 0;
+        }}
+
+        .action-container.hidden {{
+            transform: translateX(-50%) translateY(100px);
+            opacity: 0;
+            pointer-events: none;
+        }}
+
+        .btn-action {{
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+
+        .btn-action:hover {{
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: var(--accent);
         }}
 
         /* --- ANALYTICS --- */
@@ -446,6 +569,7 @@ class HTMLGenerator:
 <body>
 
     <nav class="floating-nav" id="main-nav">
+        <div class="nav-indicator" id="nav-indicator"></div>
         <a href="../dashboard.html" class="nav-link hub-btn">
             <i class="fas fa-chevron-left"></i> Hub
         </a>
@@ -453,6 +577,8 @@ class HTMLGenerator:
         <a href="#analytics" class="nav-link">Analysis</a>
         <a href="#trail" class="nav-link">Trail</a>
     </nav>
+
+    <div id="toast">Copied to Clipboard!</div>
 
     <div class="hero">
         <div class="hero-pattern"></div>
@@ -476,7 +602,15 @@ class HTMLGenerator:
         <section id="synthesis">
             <div class="section-label">Executive Findings</div>
             <div id="synthesis-md" class="report-body"></div>
+            <div id="synthesis-anchor" style="height: 1px; margin-top: 24px;"></div>
         </section>
+
+        <!-- NO-SECTION WRAPPER FOR PERSISTENT UI -->
+        <div class="action-container hidden">
+            <button class="btn-action" onclick="copySynthesis()">
+                <i class="far fa-copy"></i> Copy Executive Summary
+            </button>
+        </div>
 
         <!-- ANALYTICS -->
         <section id="analytics">
@@ -549,20 +683,105 @@ class HTMLGenerator:
 
             initChart();
             initScrollEffects();
+            initCopyButtons();
+        }}
+
+        function showToast(text = "Copied to Clipboard!") {{
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.classList.add('active');
+            setTimeout(() => {{
+                toast.classList.remove('active');
+            }}, 2000);
+        }}
+
+        function copySynthesis() {{
+            const text = document.getElementById('synthesis-md').innerText;
+            navigator.clipboard.writeText(text).then(() => {{
+                showToast("Summary Copied!");
+            }});
+        }}
+
+        function initCopyButtons() {{
+            document.querySelectorAll('pre').forEach(block => {{
+                if (block.querySelector('.copy-btn')) return;
+                
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                
+                btn.onclick = () => {{
+                    const code = block.querySelector('code') ? block.querySelector('code').innerText : block.innerText;
+                    navigator.clipboard.writeText(code).then(() => {{
+                        btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                        btn.classList.add('copied');
+                        setTimeout(() => {{
+                            btn.innerHTML = '<i class="far fa-copy"></i> Copy';
+                            btn.classList.remove('copied');
+                        }}, 2000);
+                        showToast("Code Copied!");
+                    }});
+                }};
+                
+                block.appendChild(btn);
+            }});
         }}
 
         function initScrollEffects() {{
             const nav = document.getElementById('main-nav');
             const sections = document.querySelectorAll('section');
+            const actionContainer = document.querySelector('.action-container');
+            const synthesisSection = document.getElementById('synthesis');
             
             window.addEventListener('scroll', () => {{
                 // Floating Nav Visibility
                 if (window.scrollY > 400) nav.classList.add('active');
                 else nav.classList.remove('active');
 
+                // Intelligent Floating Copy Button
+                if (actionContainer && synthesisSection) {{
+                    const anchor = document.getElementById('synthesis-anchor');
+                    const rect = anchor.getBoundingClientRect();
+                    const triggerPoint = window.innerHeight - 80;
+                    
+                    if (rect.top > triggerPoint) {{
+                        // Natural home is below screen
+                        actionContainer.classList.add('floating');
+                        
+                        // Show floating only if we've scrolled away from title
+                        if (window.scrollY > 100) {{
+                            actionContainer.classList.remove('hidden');
+                        }} else {{
+                            actionContainer.classList.add('hidden');
+                        }}
+                    }} else {{
+                        // Docked in natural position
+                        actionContainer.classList.remove('floating');
+                        actionContainer.classList.remove('hidden');
+                    }}
+                }}
+
                 // Section Entry Animations
                 sections.forEach(sec => {{
                     const rect = sec.getBoundingClientRect();
+                    
+                    // Active Navigation Highlight
+                    if (rect.top < window.innerHeight * 0.4 && rect.bottom > window.innerHeight * 0.4) {{
+                        const id = sec.id;
+                        const indicator = document.getElementById('nav-indicator');
+                        document.querySelectorAll('.nav-link').forEach(link => {{
+                            link.classList.remove('active-section');
+                            if (link.getAttribute('href') === '#' + id) {{
+                                link.classList.add('active-section');
+                                
+                                // Move Indicator
+                                indicator.style.opacity = '1';
+                                indicator.style.width = link.offsetWidth + 24 + 'px';
+                                indicator.style.left = link.offsetLeft - 12 + 'px';
+                            }}
+                        }});
+                    }}
+
                     if (rect.top < window.innerHeight * 0.8) {{
                         sec.classList.add('visible');
                     }}
